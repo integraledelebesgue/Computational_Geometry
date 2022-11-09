@@ -37,25 +37,25 @@ function choices(count::Int, range::Int)::Channel{Char}
 end
 
 
-function square(count::Int, range::AbstractFloat)::Array{Float64, 2}
+function square(count::Int, range::AbstractFloat)::Array{Array{Float64,1},1}
 
     local square_param = point::Vector{Float64} -> [-range, -range] + (point * 2range)
 
-    return reduce(hcat, points(count) |> collect .|> square_param)
+    return points(count) |> collect .|> square_param
 
 end
 
 
-function circle(count::Int, radius::Float64)::Array{Float64, 2}
+function circle(count::Int, radius::Float64)::Array{Array{Float64,1},1}
 
     local circle_param = param::Float64 -> ( param * 2π .|> [cos, sin] ) .* radius
 
-    return reduce(hcat, params(count) |> collect .|> circle_param)
+    return params(count) |> collect .|> circle_param
 
 end
 
 
-function square_border(count::Int, range::Float64)::Array{Float64, 2}
+function square_border(count::Int, range::Float64)::Array{Array{Float64,1},1}
     
     # Sides scheme:
     #     b b b
@@ -87,17 +87,15 @@ function square_border(count::Int, range::Float64)::Array{Float64, 2}
     end
 
 
-    return reduce( 
-        hcat,
-        [
+    return [
             [ [-range, -range], [-range, range], [range, range], [range, -range] ];
             zip(collect(choices(count, 4)), collect(params(count))) |> collect .|> border_param
-        ]
-    )
+    ]
+
 end
 
 
-function square_diagonals(count::Int, range::Float64)::Array{Float64, 2}
+function square_diagonals(count::Int, range::Float64)::Array{Array{Float64,1},1}
 
     # Sides scheme:
     #     
@@ -128,13 +126,10 @@ function square_diagonals(count::Int, range::Float64)::Array{Float64, 2}
 
     end
 
-    return reduce(
-        hcat,    
-        [
+    return [
             [ [-range, -range], [-range, range], [range, range], [range, -range] ];
             zip(collect(choices(count, 4)), collect(params(count))) |> collect .|> diagonal_param
-        ]
-    )
+    ]
     
 end
 
