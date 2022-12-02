@@ -1,5 +1,5 @@
 module PlotPreprocess
-export plotPreprocess, plotDiagonal!
+export plotPreprocess, plotSegment!
 
 
 using Plots
@@ -15,7 +15,7 @@ function plotPreprocess(points::Array{Array{Float64, 1}, 1}; edge=false)::Tuple{
 
 end
 
-function plotDiagonal!(diagonal::Tuple{Point, Point})
+function plotSegment!(diagonal::Tuple{Point, Point})
 
     plot!([diagonal[1][1], diagonal[2][1]], [diagonal[1][2], diagonal[2][2]], label=nothing, seriescolor = :steelblue)
 
