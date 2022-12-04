@@ -1,5 +1,5 @@
-#ifndef Segment_h
-#define Segment_h
+#ifndef SEGMENT_H
+#define SEGMENT_H
 #include<array>
 #include "Point.h"
 
@@ -25,7 +25,7 @@ public:
     Segment(const Point&, const Point&);
     Segment(const std::array<double, 4>&);
 
-    double hash_code() const;
+    size_t hash_code() const;
     
     friend double key(const Segment&, const double&);
     friend Point* intersection(const Segment&, const Segment&);

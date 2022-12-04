@@ -27,7 +27,7 @@ int Node::difference(){
 
 Node* right_rotation(Node* parent){
     Node* t = parent->left;
-    t->left = nullptr;
+    parent->left = nullptr;
     t->right = parent;
 
     return t;

@@ -1,5 +1,5 @@
-#ifndef AVLTree_h
-#define AVLTree_h
+#ifndef AVLTREE_H
+#define AVLTREE_H
 #include "Segment.h"
 #include "Node.h"
 #include<unordered_map>

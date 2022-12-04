@@ -31,7 +31,7 @@ double key(const Segment& seg, const double& x){
     return seg.slope * x + seg.intercept;
 }
 
-double Segment::hash_code() const {
+size_t Segment::hash_code() const {
     return std::hash<double>{}(slope) + 31 * std::hash<double>{}(intercept);
 }
 

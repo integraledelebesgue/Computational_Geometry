@@ -1,5 +1,5 @@
-#ifndef Point_h
-#define Point_h
+#ifndef POINT_H
+#define POINT_H
 #include<utility>
 
 
