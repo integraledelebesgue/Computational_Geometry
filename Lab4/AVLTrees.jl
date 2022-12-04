@@ -1,6 +1,7 @@
 module AVLTrees
 export Node, AVLTree, insert!, printTreeInOrder, findSuccessor, findPredecessor, delete!
 
+using BasicDataTypes
 
 mutable struct Node
     key
@@ -105,15 +106,34 @@ end
 function balance(parent)
 
     balance_factor = difference(parent)
+    child_factor = 0
 
     #print("Balance factor for $(parent) is $(balance_factor) ")
 
-    if balance_factor > 1
-        difference(parent.left) > 0 ? leftRotation(parent) : leftRightRotation(parent)
-        
-    elseif balance_factor < -1
-        difference(parent.right) > 0 ? rightLeftRotation(parent) : rightRotation(parent)
+    try
+
+        if balance_factor > 1
+            child_factor = difference(parent.left)
+            child_factor > 0 ? rightRotation(parent) : leftRightRotation(parent)
+            
+        elseif balance_factor < -1
+            child_factor = difference(parent.right)
+            child_factor > 0 ? rightLeftRotation(parent) : leftRotation(parent)
+        end
+
+    catch Error
+
+        printRec(parent)
+
+        if balance_factor > 1
+            child_factor > 0 ? println("Tried right rotation") : println("Tried left-right rotation")
+            
+        elseif balance_factor < -1
+            child_factor > 0 ? println("Tried right-left rotation") : println("Tried left rotation")
+        end
+
     end
+
 
 end
 
@@ -158,8 +178,11 @@ end
 
 function insert!(tree, key, value)
 
+    #println("Inserting ", value)
+
     newNode = Node(key, value)
-    map[value] = newNode
+    #setindex!(tree.map, newNode, value)
+    tree.map[value] = newNode
 
     if tree.guard.right !== nothing
         insertRec(tree.guard.right, newNode)
@@ -167,28 +190,28 @@ function insert!(tree, key, value)
     end
 
     tree.guard.right = newNode
-    tree.guard.right.parent = tree.guard
+    newNode.parent = tree.guard
+    return
+
+end
+
+
+function printRec(node, message="", child="")
+
+    if node === nothing
+        return
+    end
+
+    println(message, child, "key: $(node.key), value: $(node.value)")
+    printRec(node.left, message * "\t", "left: ")
+    printRec(node.right, message * "\t", "right: ")
+
     return
 
 end
 
 
 function printTreeInOrder(tree)
-
-    function printRec(node, message="")
-
-        if node === nothing
-            return
-        end
-
-        println(message, "key: $(node.key), value: $(node.value)")
-        printRec(node.left, message * "\t")
-        printRec(node.right, message * "\t")
-
-        return
-
-    end
-
 
     printRec(tree.guard.right)
 
@@ -235,7 +258,7 @@ function findMin(tree)
 end
 
 
-function findSuccessorNode(node)
+function findSuccessorNode(tree, node)
 
     if node.right !== nothing
         return findMinNode(node.right)
@@ -243,7 +266,7 @@ function findSuccessorNode(node)
     
     curr = deepcopy(node)
 
-    while curr.parent !== nothing
+    while curr.parent !== nothing && curr.parent !== tree.guard
 
         #print("curr = $(curr.value), ")
         #print("in loop... ")
@@ -261,7 +284,7 @@ function findSuccessorNode(node)
 end
 
 
-function findPredecessorNode(node)
+function findPredecessorNode(tree, node)
 
     if node.left !== nothing
         return findMaxNode(node.left)
@@ -269,10 +292,10 @@ function findPredecessorNode(node)
 
     curr = deepcopy(node)
 
-    while curr.parent !== nothing
+    while curr.parent !== nothing && curr.parent !== tree.guard
 
         if curr.parent.right === curr
-            return curr.parent.right
+            return curr.parent
         end
 
         curr = curr.parent
@@ -297,19 +320,19 @@ end
 
 function findSuccessor(tree, segment)
 
-    return findSuccessorNode(tree.map[segment]) |> monadicReturn
+    return findSuccessorNode(tree,tree.map[segment]) |> monadicReturn
 
 end
 
 
 function findPredecessor(tree, segment)
 
-    return findPredecessorNode(tree.map[segment]) |> monadicReturn
+    return findPredecessorNode(tree, tree.map[segment]) |> monadicReturn
 
 end
 
 
-function deleteNode(node)
+function deleteNode(tree, node)
 
     function replaceNode(node, new_node)  # paste new_node in node's place
 
@@ -328,9 +351,10 @@ function deleteNode(node)
 
     if node.left !== nothing && node.right !== nothing
 
-        successor = findSuccessorNode(node)
+        successor = findSuccessorNode(tree, node)
         replaceNode(node, successor)
         insertRec(successor, node.left)
+        #balance(node.left)
 
     elseif node.left === nothing  # delete one-child-on-right node
 
@@ -351,8 +375,8 @@ end
 
 function delete!(tree, segment)
 
-    deleteNode(tree.map[segment])
-    delete!(tree.map, segment)
+    deleteNode(tree, tree.map[segment])
+    Base.delete!(tree.map, segment)
 
 end
 

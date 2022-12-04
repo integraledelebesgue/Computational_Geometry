@@ -3,7 +3,7 @@ export plotPreprocess, plotSegment!
 
 
 using Plots
-using BasicDatatypes
+using BasicDataTypes
 
 
 function plotPreprocess(points::Array{Array{Float64, 1}, 1}; edge=false)::Tuple{Array{Float64, 1}, Array{Float64, 1}}
@@ -15,9 +15,9 @@ function plotPreprocess(points::Array{Array{Float64, 1}, 1}; edge=false)::Tuple{
 
 end
 
-function plotSegment!(diagonal::Tuple{Point, Point})
+function plotSegment!(segment::Tuple{Point, Point})
 
-    plot!([diagonal[1][1], diagonal[2][1]], [diagonal[1][2], diagonal[2][2]], label=nothing, seriescolor = :steelblue)
+    plot!([segment[1][1], segment[2][1]], [segment[1][2], segment[2][2]], label=nothing, seriescolor = :steelblue)
 
 end
 

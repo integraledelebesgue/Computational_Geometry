@@ -1,7 +1,7 @@
 module BasicDataTypes
-export Maybe, Point, Segment, lexiOrderLowerThan, segmentsIntersect
+export Maybe, Point, Segment, lexiOrderLowerThan, segmentsIntersect, getY, findIntersection
 
-using LinearAlgebra: cross
+using LinearAlgebra: cross, SingularException
 
 
 Maybe{T} = Union{T, Nothing}
@@ -44,19 +44,19 @@ function segmentsIntersect(segment1, segment2)::Bool
     dir3 = direction(segment1..., segment2[1])
     dir4 = direction(segment1..., segment2[2])
 
-    if (dir1 * dir2 < 0.0) || (dir3 * dir4 < 0.0)
+    if (dir1 * dir2 < 0.0) && (dir3 * dir4 < 0.0)
         return true
     
-    elseif d1 == 0.0 && onSegment(segment2, segment1[1])
+    elseif dir1 == 0.0 && onSegment(segment2, segment1[1])
         return true
 
-    elseif d2 == 0.0 && onSegment(segment2, segment1[2])
+    elseif dir2 == 0.0 && onSegment(segment2, segment1[2])
         return true
 
-    elseif d3 == 0.0 && onSegment(segment1, segment2[1])
+    elseif dir3 == 0.0 && onSegment(segment1, segment2[1])
         return true
 
-    elseif d4 == 0.0 && onSegment(segment1, segment2[2])
+    elseif dir4 == 0.0 && onSegment(segment1, segment2[2])
         return true
     end
 
@@ -64,4 +64,43 @@ function segmentsIntersect(segment1, segment2)::Bool
 
 end
 
+
+function getSlope(segment)
+
+    return ((segment[2][2] - segment[1][2]) / (segment[2][1] - segment[1][1]))
+
 end
+
+function getInterception(segment)
+
+    return segment[1][2] - segment[1][1] * getSlope(segment)
+
+end
+
+
+function getY(segment, x)
+
+    return segment[1][2] + (x - segment[1][1]) * getSlope(segment)
+
+end
+
+
+function findIntersection(segment1, segment2)
+
+    try
+        solution = [getSlope(segment1) (-1) ; getSlope(segment2) (-1)] \ [-getInterception(segment1), -getInterception(segment2)]    
+
+        if min(segment1[1][1], segment1[2][1]) <= solution[1] <= max(segment1[1][1], segment1[2][1]) && min(segment1[1][2], segment1[2][2]) <= solution[2] <= max(segment1[1][2], segment1[2][2])
+            return solution
+        end
+    
+        return nothing
+
+    catch SingularException
+        return nothing
+    end
+
+end
+
+
+end #module

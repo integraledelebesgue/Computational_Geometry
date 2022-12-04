@@ -11,7 +11,7 @@ def runCanvas(xsize=1000, ysize=1000):
             #points.append((event.xdata, event.ydata))
             
             if in_segment:
-                new_point = (event.xdata, event.ydata)
+                new_point = [event.xdata, event.ydata]
                 
                 plt.plot(*new_point, marker='o', markersize=3)
                 plt.plot([last[0], new_point[0]], [last[1], new_point[1]], )
@@ -21,7 +21,7 @@ def runCanvas(xsize=1000, ysize=1000):
                 last = new_point
 
             else:
-                last = (event.xdata, event.ydata)
+                last = [event.xdata, event.ydata]
                 in_segment = True
 
                 plt.plot(*last, marker='o', markersize=3)
@@ -44,7 +44,7 @@ def runCanvas(xsize=1000, ysize=1000):
 
     plt.show()
 
-    print(segments)
+    #print(segments)
 
     return segments
 

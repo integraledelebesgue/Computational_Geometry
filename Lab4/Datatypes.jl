@@ -1,6 +1,0 @@
-module Datatypes
-
-
-
-
-end #module

@@ -1,9 +1,12 @@
 push!(LOAD_PATH, @__DIR__)
 
+using Plots
 using PyCall
+using PlotPreprocess
 using AVLTrees
 using BasicDataTypes
 using SweepLine
+
 
 function readFromInterface()
 
@@ -15,38 +18,21 @@ function readFromInterface()
 end
 
 
-function test()
-
-    tree = AVLTree()
-
-    #insert(tree, 1.0, "napis1")
-    #insert(tree, 2.5, "napisik2")
-    #insert(tree, 1.5, "napisik3")
-
-    insert(tree, 5.0, "napis1")
-    insert(tree, 1.5, "napisik2")
-    insert(tree, 2.5, "napisik3")
-    insert(tree, 10.0, "napisik4")
-    insert(tree, -1.0, "napisik5")
-    insert(tree, 2.0, "napisik6")
-
-    printTreeInOrder(tree)
-
-    #println(findMax(tree).value)
-    #println("Następnikiem $(tree.guard.right.left.right.value) jest $(findSuccessorNode(tree.guard.right.left.right).value)")
-
-    deleteNode(tree.guard.right.left)
-
-    printTreeInOrder(tree)
-
-end
-
-
 function main()
 
     segments = readFromInterface()
-    println(segments)
+
+    intersections = findAllIntersections(segments)
+
+    plot(size=(500, 500)) |> display
+    
+    for segment in segments
+        plotSegment!(segment) |> display
+    end
+
+    plot!(plotPreprocess(collect(keys(intersections)), edge=false), label = "Intersections", seriestype = :scatter, seriescolor = :orange) |> display
 
 end
+
 
 main()
