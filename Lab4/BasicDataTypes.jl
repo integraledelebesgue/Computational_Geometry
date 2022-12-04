@@ -1,5 +1,5 @@
 module BasicDataTypes
-export Maybe, Point, Segment, segmentsIntersect
+export Maybe, Point, Segment, lexiOrderLowerThan, segmentsIntersect
 
 using LinearAlgebra: cross
 
@@ -8,6 +8,13 @@ Maybe{T} = Union{T, Nothing}
 
 Point = Array{Float64, 1}
 Segment = Tuple{Point, Point}
+
+
+function lexiOrderLowerThan(point1, point2)
+
+    return point1[1] < point2[1] || (point1[1] == point2[1] && point1[2] < point2[2])
+
+end
 
 
 function segmentsIntersect(segment1, segment2)::Bool

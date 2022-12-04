@@ -5,13 +5,6 @@ using DataStructures
 using AVLTrees
 
 
-function lexiOrderLowerThan(point1, point2)
-
-    return point1.x < point2.x || (point1.x == point2.x && point1.y < point2.y)
-
-end
-
-
 function anyIntersect(segments)
 
     local filterNothing = list -> filter(x -> x !== nothing, list)

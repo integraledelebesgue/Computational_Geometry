@@ -44,8 +44,10 @@ def runCanvas(xsize=1000, ysize=1000):
 
     plt.show()
 
+    print(segments)
+
     return segments
 
 #end def
 
-print(runCanvas(500, 500))
+#print(runCanvas(500, 500))

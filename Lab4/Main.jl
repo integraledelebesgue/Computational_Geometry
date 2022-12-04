@@ -10,7 +10,7 @@ function readFromInterface()
     pushfirst!(PyVector(pyimport("sys")."path"), "")
     pushfirst!(PyVector(pyimport("sys")."path"), @__DIR__)
     interface = pyimport("GraphicInterface")
-    return map(x -> [x[1], x[2]], interface.runCanvas()) .|> lexiOrderLowerThan
+    return map(x -> Tuple(x), sort.(map(x -> [x[1], x[2]], interface.runCanvas()), lt=lexiOrderLowerThan))
 
 end
 
