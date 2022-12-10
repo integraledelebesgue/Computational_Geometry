@@ -1,5 +1,5 @@
 module BasicDataTypes
-export Maybe, Point, PointList, Segment, SegmentList, newSegment, lexiOrderLowerThan, segmentsIntersect, getY, findIntersection
+export Maybe, Point, PointList, Segment, SegmentList, newSegment, sortSegments, lexiOrderLowerThan, segmentsIntersect, getY, findIntersection
 
 using LinearAlgebra: cross
 
@@ -22,6 +22,13 @@ end
 function lexiOrderLowerThan(point1::Point, point2::Point)::Bool
 
     return point1[1] < point2[1] || (point1[1] == point2[1] && point1[2] < point2[2])
+
+end
+
+
+function sortSegments(segments::SegmentList)::SegmentList
+
+    return map(x -> Tuple(x), sort.(map(x -> [x[1], x[2]], segments), lt=lexiOrderLowerThan))
 
 end
 
