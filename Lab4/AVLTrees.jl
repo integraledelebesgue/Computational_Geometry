@@ -1,28 +1,28 @@
 module AVLTrees
-export Node, AVLTree, insert!, printTreeInOrder, findSuccessor, findPredecessor, delete!
+export Node, AVLTree, insert!, printTreeInOrder, findSuccessor, findPredecessor, delete!, reorder!
 
 using BasicDataTypes
 
 mutable struct Node
-    key
-    value
-    left
-    right
-    parent
+    key::Maybe{Float64}
+    value::Maybe{Segment}
+    left::Maybe{Node}
+    right::Maybe{Node}
+    parent::Maybe{Node}
 
     Node(_key, _value) = new(_key, _value, nothing, nothing, nothing)
 end
 
 
 mutable struct AVLTree
-    guard
-    map
+    guard::Node
+    map::Dict{Segment, Node}
 
     AVLTree() = new(Node(nothing, nothing), Dict{Segment, Node}())
 end
 
 
-function height(parent)
+function height(parent::Maybe{Node})::Int16
 
     if parent ≡ nothing
         return 0
@@ -36,12 +36,14 @@ function height(parent)
 end
 
 
-function difference(parent)
+function difference(parent::Node)::Int16
+
     return height(parent.left) - height(parent.right)
+
 end
 
 
-function rightRotation(parent)
+function rightRotation(parent::Node)::Nothing
 
     if parent === parent.parent.left
         parent.parent.left = parent.left
@@ -54,10 +56,12 @@ function rightRotation(parent)
     parent.parent = parent.left # dodane
     parent.left = nothing
 
+    return nothing
+
 end
 
 
-function leftRotation(parent)
+function leftRotation(parent::Node)::Nothing
 
     if parent === parent.parent.left
         parent.parent.left = parent.right
@@ -70,10 +74,12 @@ function leftRotation(parent)
     parent.parent = parent.right # dodane
     parent.right = nothing
 
+    return nothing
+
 end
 
 
-function rightLeftRotation(parent)
+function rightLeftRotation(parent::Node)::Nothing
 
     #println("=> right-left rotation")
 
@@ -86,10 +92,12 @@ function rightLeftRotation(parent)
 
     leftRotation(parent)
 
+    return nothing
+
 end
 
 
-function leftRightRotation(parent)
+function leftRightRotation(parent::Node)::Nothing
 
     middle = parent.left
     parent.left = middle.right
@@ -100,57 +108,37 @@ function leftRightRotation(parent)
 
     rightRotation(parent)
 
+    return nothing
+
 end
 
 
-function balance(parent)
+function balance(parent::Node)::Nothing
 
     balance_factor = difference(parent)
     child_factor = 0
 
-    #print("Balance factor for $(parent) is $(balance_factor) ")
-
-    try
-
-        if balance_factor > 1
-            child_factor = difference(parent.left)
-            child_factor > 0 ? rightRotation(parent) : leftRightRotation(parent)
-            
-        elseif balance_factor < -1
-            child_factor = difference(parent.right)
-            child_factor > 0 ? rightLeftRotation(parent) : leftRotation(parent)
-        end
-
-    catch Error
-
-        printRec(parent)
-
-        if balance_factor > 1
-            child_factor > 0 ? println("Tried right rotation") : println("Tried left-right rotation")
-            
-        elseif balance_factor < -1
-            child_factor > 0 ? println("Tried right-left rotation") : println("Tried left rotation")
-        end
-
+    if balance_factor > 1
+        child_factor = difference(parent.left)
+        child_factor > 0 ? rightRotation(parent) : leftRightRotation(parent)
+        
+    elseif balance_factor < -1
+        child_factor = difference(parent.right)
+        child_factor > 0 ? rightLeftRotation(parent) : leftRotation(parent)
     end
 
+    return nothing
 
 end
 
 
-function insertRec(root, to_insert)
-
-    #print("Inserting $(to_insert) to $(root)")
+function insertRec(root::Node, to_insert::Node)::Nothing
 
     if to_insert.key < root.key
 
-        #print(".left ")
-        
         if root.left !== nothing
-            #println("recursively")
             insertRec(root.left, to_insert)
         else
-            #println("as new connection")
             root.left = to_insert
             to_insert.parent = root
         end
@@ -159,13 +147,9 @@ function insertRec(root, to_insert)
     
     elseif to_insert.key >= root.key
 
-        #print(".right ")
-        
         if root.right !== nothing
-            #println("recursively")
             insertRec(root.right, to_insert)
         else
-            #println("as new connection")
             root.right = to_insert
             to_insert.parent = root
         end
@@ -173,15 +157,14 @@ function insertRec(root, to_insert)
         balance(root)
     end
 
+    return nothing
+
 end
 
 
-function insert!(tree, key, value)
-
-    #println("Inserting ", value)
+function insert!(tree::AVLTree, key::Float64, value::Segment)::Nothing
 
     newNode = Node(key, value)
-    #setindex!(tree.map, newNode, value)
     tree.map[value] = newNode
 
     if tree.guard.right !== nothing
@@ -191,12 +174,13 @@ function insert!(tree, key, value)
 
     tree.guard.right = newNode
     newNode.parent = tree.guard
-    return
+
+    return nothing
 
 end
 
 
-function printRec(node, message="", child="")
+function printRec(node::Node, message::String="", child::String="")::Nothing
 
     if node === nothing
         return
@@ -206,19 +190,20 @@ function printRec(node, message="", child="")
     printRec(node.left, message * "\t", "left: ")
     printRec(node.right, message * "\t", "right: ")
 
-    return
+    return nothing
 
 end
 
 
-function printTreeInOrder(tree)
+function printTreeInOrder(tree::AVLTree)::Nothing
 
     printRec(tree.guard.right)
+    return nothing
 
 end
 
 
-function findMaxNode(node)
+function findMaxNode(node::Node)::Node
 
     curr = deepcopy(node)
 
@@ -231,7 +216,7 @@ function findMaxNode(node)
 end
 
 
-function findMinNode(node)
+function findMinNode(node::Node)::Node
 
     curr = deepcopy(node)
 
@@ -244,21 +229,21 @@ function findMinNode(node)
 end
 
 
-function findMax(tree)
+function findMax(tree::AVLTree)::Node
 
     return findMaxNode(tree.guard.right)
 
 end
 
 
-function findMin(tree)
+function findMin(tree::AVLTree)::Node
 
     return findMinNode(tree.guard.right)
 
 end
 
 
-function findSuccessorNode(tree, node)
+function findSuccessorNode(tree::AVLTree, node::Node)::Maybe{Node}
 
     if node.right !== nothing
         return findMinNode(node.right)
@@ -266,7 +251,7 @@ function findSuccessorNode(tree, node)
     
     curr = deepcopy(node)
 
-    while curr.parent !== nothing && curr.parent !== tree.guard
+    while curr.parent !== nothing && curr.parent !== tree.guard.right
 
         #print("curr = $(curr.value), ")
         #print("in loop... ")
@@ -284,7 +269,7 @@ function findSuccessorNode(tree, node)
 end
 
 
-function findPredecessorNode(tree, node)
+function findPredecessorNode(tree::AVLTree, node::Node)::Maybe{Node}
 
     if node.left !== nothing
         return findMaxNode(node.left)
@@ -292,7 +277,7 @@ function findPredecessorNode(tree, node)
 
     curr = deepcopy(node)
 
-    while curr.parent !== nothing && curr.parent !== tree.guard
+    while curr.parent !== nothing && curr.parent !== tree.guard.right
 
         if curr.parent.right === curr
             return curr.parent
@@ -307,7 +292,7 @@ function findPredecessorNode(tree, node)
 end
 
 
-function monadicReturn(node)
+function monadicReturn(node::Maybe{Node})::Maybe{Segment}
 
     if node !== nothing
         return node.value
@@ -318,23 +303,23 @@ function monadicReturn(node)
 end
 
 
-function findSuccessor(tree, segment)
+function findSuccessor(tree::AVLTree, segment::Segment)::Maybe{Segment}
 
     return findSuccessorNode(tree,tree.map[segment]) |> monadicReturn
 
 end
 
 
-function findPredecessor(tree, segment)
+function findPredecessor(tree::AVLTree, segment::Segment)::Maybe{Segment}
 
     return findPredecessorNode(tree, tree.map[segment]) |> monadicReturn
 
 end
 
 
-function deleteNode(tree, node)
+function deleteNode(tree::AVLTree, node::Node)::Nothing
 
-    function replaceNode(node, new_node)  # paste new_node in node's place
+    function replaceNode(node, new_node)::Nothing  # paste new_node in node's place
 
         if node.parent.left === node
             node.parent.left = new_node
@@ -345,6 +330,8 @@ function deleteNode(tree, node)
         if new_node !== nothing
             new_node.parent = node.parent
         end
+
+        return nothing
 
     end
 
@@ -370,13 +357,38 @@ function deleteNode(tree, node)
     
     end
 
+    return nothing
+
 end
 
 
-function delete!(tree, segment)
+function delete!(tree::AVLTree, segment::Segment)::Nothing
 
     deleteNode(tree, tree.map[segment])
     Base.delete!(tree.map, segment)
+
+    return nothing
+
+end
+
+
+function reorder!(tree::AVLTree, getNewKey::Function)::Nothing
+
+    # Reorder elements in tree:
+    activeSegments = []
+
+    for key in keys(tree.map)
+        push!(activeSegments, tree.map[key].value)
+        Base.delete!(tree.map, key)
+    end
+
+    tree.guard.right = nothing
+
+    for segment in activeSegments
+        AVLTrees.insert!(tree, getNewKey(segment), segment)
+    end 
+
+    return nothing
 
 end
 

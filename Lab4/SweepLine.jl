@@ -6,12 +6,16 @@ using DataStructures
 using AVLTrees
 
 
-function anyIntersect(segments)
+function anyIntersect(segments::SegmentList)::Bool
 
-    segmentStart = Dict{Point, Segment}()
-    segmentEnd = Dict{Point, Segment}()
+    segmentStart::Dict{Point, Segment} = Dict{Point, Segment}()
+    segmentEnd::Dict{Point, Segment} = Dict{Point, Segment}()
 
-    lineStatus = AVLTrees.AVLTree()
+    lineStatus::AVLTrees.AVLTree = AVLTrees.AVLTree()
+
+    currSegment::Segment = newSegment()
+    successor::Maybe{Segment} = newSegment()
+    predecessor::Maybe{Segment} = newSegment()
 
     # Preprocessing:
     for segment in segments
@@ -21,9 +25,9 @@ function anyIntersect(segments)
 
     end
 
-    sortedPoints = sort([ [segment[1] for segment in segments] ; [segment[2] for segment in segments] ], lt = lexiOrderLowerThan)
+    sortedPoints::PointList = sort([ [segment[1] for segment in segments] ; [segment[2] for segment in segments] ], lt = lexiOrderLowerThan)
 
-    for point in sortedPoints  # x = point[1]
+    for point in sortedPoints
 
         if get(segmentStart, point, nothing) !== nothing
 
@@ -66,14 +70,29 @@ function anyIntersect(segments)
 end
 
 
-function findAllIntersections(segments)
+function findAllIntersections(segments::SegmentList)::Dict{Point, Tuple{Segment, Segment}}
 
-    segmentStart = Dict{Point, Segment}()
-    segmentEnd = Dict{Point, Segment}()
-    segmentCross = Dict{Point, Tuple{Segment, Segment}}()
+    segmentStart::Dict{Point, Segment} = Dict{Point, Segment}()
+    segmentEnd::Dict{Point, Segment} = Dict{Point, Segment}()
+    segmentCross::Dict{Point, Tuple{Segment, Segment}} = Dict{Point, Tuple{Segment, Segment}}()
+    processedCrosses::Dict{Point, Bool} = Dict{Point, Bool}()
 
-    eventQueue = PriorityQueue{Float64, Point}()
-    lineStatus = AVLTrees.AVLTree()
+    eventQueue::PriorityQueue{Float64, Point} = PriorityQueue{Float64, Point}()
+    lineStatus::AVLTrees.AVLTree = AVLTrees.AVLTree()
+
+    point::Point = Point()
+    currSegment::Segment = newSegment()
+    successor::Maybe{Segment} = nothing
+    predecessor::Maybe{Segment} = nothing
+    intersection::Point = Point()
+    key1::Float64 = 0.0
+    key2::Float64 = 0.0
+    segment1::Segment = newSegment()
+    segment2::Segment = newSegment()
+    predecessor1::Maybe{Segment} = nothing
+    successor1::Maybe{Segment} = nothing
+    predecessor2::Maybe{Segment} = nothing
+    successor2::Maybe{Segment} = nothing
 
     # Preprocessing:
     for segment in segments
@@ -85,11 +104,6 @@ function findAllIntersections(segments)
         enqueue!(eventQueue, segment[2][1], segment[2])
 
     end
-
-    #println("Starts:")
-    #println(segmentStart)
-    #println("Ends:")
-    #println(segmentEnd)
 
     while !isempty(eventQueue)
 
@@ -103,25 +117,8 @@ function findAllIntersections(segments)
 
             currSegment = segmentStart[point]
 
-            #println("Current tree:")
-            #printTreeInOrder(lineStatus)
-
             # Reorder elements in tree:
-            activeSegments = []
-
-            for key in keys(lineStatus.map)
-                push!(activeSegments, lineStatus.map[key].value)
-                Base.delete!(lineStatus.map, key)
-            end
-
-            lineStatus.guard.right = nothing
-
-            for segment in activeSegments
-                AVLTrees.insert!(lineStatus, getY(segment, point[1]), segment)
-            end 
-
-            #printTreeInOrder(lineStatus)
-            #println()
+            reorder!(lineStatus, seg -> getY(seg, point[1]))
 
             # Add current segment
             AVLTrees.insert!(lineStatus, point[2], currSegment)
@@ -149,6 +146,12 @@ function findAllIntersections(segments)
 
             currSegment = segmentEnd[point]
 
+            # Reorder elements in tree:
+            reorder!(lineStatus, seg -> getY(seg, point[1]))
+
+            # Add current segment
+            AVLTrees.insert!(lineStatus, point[2], currSegment)
+
             successor = findSuccessor(lineStatus, currSegment)
             predecessor = findPredecessor(lineStatus, currSegment)
 
@@ -162,62 +165,71 @@ function findAllIntersections(segments)
         end
 
         # If current point is the intersection of two segments:
-        if get(segmentCross, point, nothing) !== nothing
+        if get(segmentCross, point, nothing) !== nothing && !get(processedCrosses, point, false)
+
+            processedCrosses[point] = true
 
             (segment1, segment2) = segmentCross[point]
 
-            # Re-insert segments in opposite order:
+            # Delete current segments and save their keys
             key1 = lineStatus.map[segment1].key
             key2 = lineStatus.map[segment2].key
 
             AVLTrees.delete!(lineStatus, segment1)
             AVLTrees.delete!(lineStatus, segment2)
 
+            # Reorder elements in tree:
+            reorder!(lineStatus, seg -> getY(seg, point[1]))
+
+            # Re-insert current segments in opposite order:
             AVLTrees.insert!(lineStatus, key2, segment1)
             AVLTrees.insert!(lineStatus, key1, segment2)
 
-            """
             # Check for 1st segment intersections
             successor1 = findSuccessor(lineStatus, segment1)
             predecessor1 = findPredecessor(lineStatus, segment1)
 
-            #println("Segment1: ", segment1)
-            #println("Successor: ", successor1)
-            #println("Predecessor: ", predecessor1)
-
             if successor1 !== nothing && successor1 != segment2 && segmentsIntersect(segment1, successor1)
                 intersection = findIntersection(segment1, successor1)
                 segmentCross[intersection] = (segment1, successor1)
-                enqueue!(eventQueue, intersection[1], intersection)
+                if !haskey(eventQueue, intersection[1])
+                    enqueue!(eventQueue, intersection[1], intersection)
+           
+                end
             end
 
             if predecessor1 !== nothing && predecessor1 != segment2 && segmentsIntersect(segment1, predecessor1)
                 intersection = findIntersection(segment1, predecessor1)
                 segmentCross[intersection] = (segment1, predecessor1)
-                enqueue!(eventQueue, intersection[1], intersection)
+                
+                if !haskey(eventQueue, intersection[1])    
+                    enqueue!(eventQueue, intersection[1], intersection)
+                end
+            
             end
 
             # Check for 2nd segment intersections
             successor2 = findSuccessor(lineStatus, segment2)
             predecessor2 = findPredecessor(lineStatus, segment2)
 
-            #println("Segment2: ", segment2)
-            #println("Successor: ", successor2)
-            #println("Predecessor: ", predecessor2)
-            #println()
-
             if successor2 !== nothing && successor2 != segment1 && segmentsIntersect(segment2, successor2)
                 intersection = findIntersection(segment2, successor2)
                 segmentCross[intersection] = (segment2, successor2)
-                enqueue!(eventQueue, intersection[1], intersection)
+                
+                if !haskey(eventQueue, intersection[1])
+                    enqueue!(eventQueue, intersection[1], intersection)
+                end
             end
 
             if predecessor2 !== nothing && predecessor2 != segment1 && segmentsIntersect(segment2, predecessor2)
                 intersection = findIntersection(segment2, predecessor2)
                 segmentCross[intersection] = (segment2, predecessor2)
-                enqueue!(eventQueue, intersection[1], intersection)
+                
+                if !haskey(eventQueue, intersection[1])
+                    enqueue!(eventQueue, intersection[1], intersection)
+                end
+
             end
-            """
         
         end
 
