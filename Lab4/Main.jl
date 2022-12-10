@@ -108,6 +108,7 @@ end
 
 
 main(
-    inputMode = :interactive,
+    inputMode = :random,
     outputMode = :plot,
+    count = 50
 )
