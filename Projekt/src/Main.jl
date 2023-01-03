@@ -59,18 +59,18 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
 
     points = generatePoints(n, (x_min, x_max), (y_min, y_max))
     
-    tree = Quadtree(points)
-    #tree = KDTree(points)
+    #tree = Quadtree(points)
+    tree = KDTree(points)
     
     constraint_1 = Constraint(2.5, 3.5, 1.0, 2.0)
     
     result, execution_time = solveSatisfy(tree, constraint_1)
     
-    plotEverything!(points, result, "obrazek")
+    #plotEverything!(points, result, "obrazek")
     commentResult!(n, tree.construction_time, length(result), execution_time)
 
 end
 
 
-main(10000, 0.0, 5.0, 0.0, 5.0)
+main(1000000, 0.0, 5.0, 0.0, 5.0)
 
