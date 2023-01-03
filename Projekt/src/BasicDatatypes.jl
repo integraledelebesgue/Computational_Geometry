@@ -1,8 +1,11 @@
 module BasicDatatypes
-export Maybe, Point, PointList, Interval, intersectIntervals, indefiniteInclusion
+export Maybe, Point, PointList, Interval, intersectIntervals, indefiniteInclusion, AbstractTree
 
 # Generic
 Maybe{T} = Union{T, Nothing}
+
+# Abstract
+abstract type AbstractTree end
 
 # Specialised
 Point = Array{Float64, 1}

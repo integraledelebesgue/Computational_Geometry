@@ -6,7 +6,7 @@ using BasicDatatypes
 using Queries
 
 
-struct Quadtree
+struct Quadtree <: AbstractTree
     root::Quadnode
     depth::Int
     construction_time::Float64
@@ -32,12 +32,12 @@ function getDepth(node::Quadnode)::Int
         return 0
     end
 
-    return 1 + maximum(getDepth, filter(x -> x !== nothing, [node.first, node.second, node.third, node.forth]))
+    return 1 + maximum(getDepth, getChildren(node))
 
 end
 
 
-function recursiveDFS(tree::Quadtree, query:: Query)::PointList
+function recursiveDFS(tree::Quadtree, query::Query)::PointList
 
     return dfs(tree.root, query)
 

@@ -1,5 +1,5 @@
 module QuadNode
-export Quadnode, isLeaf, dfs
+export Quadnode, isLeaf, dfs, getChildren
 
 using BasicDatatypes
 using Queries: Query, fitQueryToSquare
@@ -24,7 +24,7 @@ struct Quadnode
 end
 
 
-function constructQuadnode(points::PointList)::Tuple{PointList, Point, Tuple{Float64, Float64}, Tuple{Float64, Float64}, Maybe{Quadnode}, Maybe{Quadnode}, Maybe{Quadnode}, Maybe{Quadnode}}
+function constructQuadnode(points::PointList)::Tuple{PointList, Point, Interval, Interval, Maybe{Quadnode}, Maybe{Quadnode}, Maybe{Quadnode}, Maybe{Quadnode}}
 
     if length(points) == 1
         return (points, points[1], (points[1][1], points[1][1]), (points[1][2], points[1][2]), nothing, nothing, nothing, nothing)
@@ -113,9 +113,9 @@ function dfs(node::Maybe{Quadnode}, query::Maybe{Query})::PointList
         return []
     end
 
-    # base recursion case: no point satisfies constraint
+    # base recursion case: one point satisfies constraint
     if isLeaf(node)
-        return []
+        return node.points
     end
 
     # base recursion case: all poins satisfy constraint

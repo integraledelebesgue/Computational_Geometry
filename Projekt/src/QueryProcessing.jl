@@ -4,9 +4,10 @@ export solveSatisfy
 using BasicDatatypes
 using QuadTree
 using Queries
+using KD_Tree
 
 
-function solveSatisfy(tree::Quadtree, constraint::Constraint)::Tuple{PointList, Float64}
+function solveSatisfy(tree::AbstractTree, constraint::Constraint)::Tuple{PointList, Float64}
 
     start_time::Float64 = time()
 
@@ -28,7 +29,14 @@ function solveSatisfy(tree::Quadtree, constraint::Constraint)::Tuple{PointList, 
         end
     end
 
-    return recursiveDFS(tree, (Query(constraint.x_interval, constraint.y_interval))), time() - start_time
+    #return recursiveDFS(tree, (Query(constraint.x_interval, constraint.y_interval))), time() - start_time
+
+    if typeof(tree) == Quadtree
+        return QuadTree.recursiveDFS(tree, Query(constraint.x_interval, constraint.y_interval)), time() - start_time    
+    elseif typeof(tree) == KDTree
+        return KD_Tree.recursiveDFS(tree, Query(constraint.x_interval, constraint.y_interval)), time() - start_time
+        #return query(tree.root.val, tree.root, (constraint.x_interval[1], constraint.y_interval[1]), (constraint.x_interval[2], constraint.y_interval[2])), time() - start_time
+    end
 
 end
 

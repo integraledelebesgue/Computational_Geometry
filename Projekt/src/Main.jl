@@ -6,6 +6,7 @@ using QuadTree
 using PlotPreprocess
 using Queries
 using QueryProcessing
+using KD_Tree
 
 
 function generatePoints(n::Int, x_lim::Interval, y_lim::Interval)::PointList
@@ -26,11 +27,11 @@ function generatePoints(n::Int, x_lim::Interval, y_lim::Interval)::PointList
 end
 
 
-function plotEverything(points::PointList, result::PointList, filename::Maybe{String} = nothing)::Nothing
+function plotEverything!(points::PointList, result::PointList, filename::Maybe{String} = nothing)::Nothing
 
     plot(size = (500, 500)) |> display
-    plot!(plotPreprocess(points)..., seriestype = :scatter) |> display
-    plot!(plotPreprocess(result)..., seriestype = :scatter) |> display
+    plot!(plotPreprocess(points)..., seriestype = :scatter, label = "All Points") |> display
+    plot!(plotPreprocess(result)..., seriestype = :scatter, label = "Points Satisfing Constraint") |> display
 
     if filename !== nothing
         savefig("$(filename).png")
@@ -41,7 +42,7 @@ function plotEverything(points::PointList, result::PointList, filename::Maybe{St
 end
 
 
-function commentResult(n::Int, construction_time::Float64, result_len::Int, execution_time::Float64)::Nothing
+function commentResult!(n::Int, construction_time::Float64, result_len::Int, execution_time::Float64)::Nothing
 
     println("--------------------------------------------")
     println("For $(n) points:")
@@ -58,14 +59,15 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
 
     points = generatePoints(n, (x_min, x_max), (y_min, y_max))
     
-    qt = Quadtree(points)
+    tree = Quadtree(points)
+    #tree = KDTree(points)
     
-    constraint_1 = Constraint(-0.2, 12.5, 1.0, 2.0)
+    constraint_1 = Constraint(2.5, 3.5, 1.0, 2.0)
     
-    result, execution_time = solveSatisfy(qt, constraint_1)
+    result, execution_time = solveSatisfy(tree, constraint_1)
     
-    plotEverything(points, result, "obrazek")
-    commentResult(n, qt.construction_time, length(result), execution_time)
+    plotEverything!(points, result, "obrazek")
+    commentResult!(n, tree.construction_time, length(result), execution_time)
 
 end
 
