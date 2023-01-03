@@ -1,8 +1,9 @@
 module QuadTree
-export Quadtree
+export Quadtree, recursiveDFS
 
 using QuadNode
 using BasicDatatypes
+using Queries
 
 
 struct Quadtree
@@ -32,6 +33,13 @@ function getDepth(node::Quadnode)::Int
     end
 
     return 1 + maximum(getDepth, filter(x -> x !== nothing, [node.first, node.second, node.third, node.forth]))
+
+end
+
+
+function recursiveDFS(tree::Quadtree, query:: Query)::PointList
+
+    return dfs(tree.root, query)
 
 end
 

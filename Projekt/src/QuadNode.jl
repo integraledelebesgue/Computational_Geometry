@@ -1,7 +1,8 @@
 module QuadNode
-export Quadnode, isLeaf
+export Quadnode, isLeaf, dfs
 
 using BasicDatatypes
+using Queries: Query, fitQueryToSquare
 
 
 struct Quadnode
@@ -105,11 +106,26 @@ function isLeaf(node::Quadnode)::Bool
 end
 
 
-function fitToNode(x_interval::Interval, y_interval::Interval, node::Quadnode)::Tuple{Interval, Interval}
+function dfs(node::Maybe{Quadnode}, query::Maybe{Query})::PointList
 
-    return (intersectIntervals(x_interval, node.x_range), intersectIntervals(y_interval, node.y_range))
+    # safe none-query handle
+    if query === nothing
+        return []
+    end
+
+    # base recursion case: no point satisfies constraint
+    if isLeaf(node)
+        return []
+    end
+
+    # base recursion case: all poins satisfy constraint
+    if indefiniteInclusion(node.x_range, query.x_interval) && indefiniteInclusion(node.y_range, query.y_interval)
+        return node.points
+    end
+
+    # recursive call
+    return reduce(vcat, [dfs(child, fitQueryToSquare(query, child.x_range, child.y_range)) for child in getChildren(node)])
 
 end
-
 
 end # module
