@@ -1,7 +1,7 @@
 module QuadNode
 export Quadnode, isLeaf, dfs, getChildren
 
-using BasicDatatypes
+using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion 
 using Queries: Query, fitQueryToSquare
 
 
@@ -11,8 +11,8 @@ struct Quadnode
 
     centre::Point
 
-    x_range::Interval
-    y_range::Interval
+    x_interval::Interval
+    y_interval::Interval
 
     first::Maybe{Quadnode}  # Convention: first is closed
     second::Maybe{Quadnode}
@@ -66,7 +66,7 @@ end
 
 function getFirst(points::PointList, centre::Point)::Maybe{PointList}
 
-    return filter(point -> (point[1] >= centre[1] && point[2] >= centre[2]), points) |> nonTrivial
+    return filter(point -> (point[1] ≥ centre[1] && point[2] ≥ centre[2]), points) |> nonTrivial
 
 end
 
@@ -80,7 +80,7 @@ end
 
 function getThird(points::PointList, centre::Point)::Maybe{PointList}
 
-    return filter(point -> (point[1] < centre[1] && point[2] < centre[2]), points) |> nonTrivial
+    return filter(point -> (point[1] ≤ centre[1] && point[2] ≤ centre[2]), points) |> nonTrivial
 
 end
 
@@ -119,12 +119,12 @@ function dfs(node::Maybe{Quadnode}, query::Maybe{Query})::PointList
     end
 
     # base recursion case: all poins satisfy constraint
-    if indefiniteInclusion(node.x_range, query.x_interval) && indefiniteInclusion(node.y_range, query.y_interval)
+    if indefiniteInclusion(node.x_interval, query.x_interval) && indefiniteInclusion(node.y_interval, query.y_interval)
         return node.points
     end
 
     # recursive call
-    return reduce(vcat, [dfs(child, fitQueryToSquare(query, child.x_range, child.y_range)) for child in getChildren(node)])
+    return reduce(vcat, [dfs(child, fitQueryToSquare(query, child.x_interval, child.y_interval)) for child in getChildren(node)])
 
 end
 

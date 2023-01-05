@@ -1,7 +1,7 @@
 module Queries
-export Constraint, Query, fitQueryToSquare
+export Constraint, Query, fitQueryToSquare, constraintToString
 
-using BasicDatatypes
+using BasicDatatypes: Maybe, Interval, intersectIntervals, validateInterval
 
 
 struct Constraint
@@ -26,26 +26,30 @@ end
 
 function constructNewConstraint(x_first::Maybe{Float64}, x_second::Maybe{Float64}, y_first::Maybe{Float64}, y_second::Maybe{Float64})::Tuple{Bool, Maybe{Interval}, Maybe{Interval}}
 
-    # Invalid cases:
-    if x_first > x_second  || ( (x_first  === nothing) ⊻ (x_second === nothing))
-        throw(ArgumentError("Interval ($(x_first), $(x_second)) is not valid."))
-    elseif y_first > y_second || ((y_first  === nothing) ⊻ (y_second === nothing))
-        throw(ArgumentError("Interval ($(y_first), $(y_second)) is not valid."))
-
-    # Trivial cases:
-    elseif (x_first === nothing && x_second === nothing && y_first === nothing && y_second === nothing)
-        return (true, nothing, nothing)
-
-    elseif (x_first === nothing && x_second === nothing) 
-        return (true, nothing, (y_first, y_second))
-
-    elseif (y_first === nothing && y_second === nothing)
-        return (true, (x_first, x_second), nothing)
-    
-    # Normal case:
-    else
-        return (false, Interval((x_first, x_second)), Interval((y_first, y_second)))
+    # Trivial case:
+    if (x_first === nothing && x_second === nothing && y_first === nothing && y_second === nothing)
+        return true, (-Inf, Inf), (-Inf, Inf)
     end
+
+    x_interval::Interval = (
+        x_first !== nothing ? x_first : -Inf,
+        x_second !== nothing ? x_second : Inf
+    )
+
+    y_interval::Interval = (
+        y_first !== nothing ? y_first : -Inf,
+        y_second !== nothing ? y_second : Inf
+    )
+
+    if validateInterval(x_interval) === nothing
+        throw(ArgumentError("Interval ($(x_first), $(x_second)) is not valid."))
+    end
+
+    if validateInterval(y_interval) === nothing
+        throw(ArgumentError("Interval ($(y_first), $(y_second)) is not valid."))
+    end
+
+    return false, x_interval, y_interval
 
 end
 
@@ -63,5 +67,19 @@ function fitQueryToSquare(query::Query, x_interval::Interval, y_interval::Interv
 
 end
 
+
+function constraintToString(constraint::Constraint)::String
+
+    local substituteInfinity = interval::Interval -> (
+        "($(interval[1] == -Inf ? "-∞" : interval[1]), $(interval[2] == Inf ? "∞" : interval[2]))"
+    )
+
+    return join([
+        constraint.x_interval !== (-Inf, Inf) ? "x ∈ $(substituteInfinity(constraint.x_interval))" : "x ∈ ℝ",
+        " ∧ ",
+        constraint.y_interval !== (-Inf, Inf) ? "y ∈ $(substituteInfinity(constraint.y_interval))" : "y ∈ ℝ"
+    ])
+
+end
 
 end #module

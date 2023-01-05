@@ -1,9 +1,9 @@
 module QuadTree
-export Quadtree, recursiveDFS
+export Quadtree
 
-using QuadNode
-using BasicDatatypes
-using Queries
+using QuadNode: Quadnode, dfs, isLeaf, getChildren
+using BasicDatatypes: AbstractTree, PointList
+using Queries: Query
 
 
 struct Quadtree <: AbstractTree
@@ -11,17 +11,19 @@ struct Quadtree <: AbstractTree
     depth::Int
     construction_time::Float64
 
-    Quadtree(points::PointList) = new(constructQuadTree(points)...)
+    search_function::Function
+
+    Quadtree(points::PointList, search_function::Function = recursiveDFS) = new(constructQuadTree(points, search_function)...)
 end
 
 
-function constructQuadTree(points::PointList)::Tuple{Quadnode, Int, Float64}
+function constructQuadTree(points::PointList, search_function::Function)::Tuple{Quadnode, Int, Float64, Function}
 
     start_time::Float64 = time()
     _root::Quadnode = Quadnode(points)
     end_time::Float64 = time()
 
-    return (_root, getDepth(_root), round(end_time-start_time, digits=5))
+    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function)
 
 end
 

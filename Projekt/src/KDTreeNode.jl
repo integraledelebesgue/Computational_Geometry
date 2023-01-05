@@ -1,9 +1,9 @@
 module KDTreeNode
 export KDNode, isLeaf, dfs, getChildren
 
-using Statistics
-using BasicDatatypes
-using Queries
+using Statistics: median
+using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion
+using Queries: Query, fitQueryToSquare
 
 
 struct KDNode

@@ -1,27 +1,31 @@
 module KD_Tree
-export KDTree, recursiveDFS
+export KDTree#, recursiveDFS
 
-using BasicDatatypes
-using KDTreeNode
-using Queries
+using BasicDatatypes: AbstractTree, PointList
+using KDTreeNode: KDNode, isLeaf, getChildren, dfs
+using Queries: Query
 
 
 struct KDTree <: AbstractTree
+
     root::KDNode
     depth::Int
     construction_time::Float64
 
-    KDTree(points::PointList) = new(constructKDTree(points)...)
+    search_function::Function
+
+    KDTree(points::PointList, search_function::Function = recursiveDFS) = new(constructKDTree(points, search_function)...)
+
 end
 
 
-function constructKDTree(points::PointList)::Tuple{KDNode, Int, Float64}
+function constructKDTree(points::PointList, search_function::Function)::Tuple{KDNode, Int, Float64, Function}
 
     start_time::Float64 = time()
     _root::KDNode = KDNode(points)
     end_time::Float64 = time()
 
-    return (_root, getDepth(_root), round(end_time-start_time, digits=5))
+    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function)
 
 end
 
