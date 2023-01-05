@@ -6,7 +6,7 @@ using BasicDatatypes: Maybe, Interval, intersectIntervals, validateInterval
 
 struct Constraint
 
-    relaxed::Bool  # Convention: query is relaxed iff at least one constraint is nothing
+    relaxed::Bool  # Convention: constraint is relaxed iff both intervals are ℝ - no search is needed in order to process
 
     x_interval::Maybe{Interval}
     y_interval::Maybe{Interval}

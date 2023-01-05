@@ -1,5 +1,5 @@
 module QueryProcessing
-export solveSatisfy, concurrentSolve
+export solveSatisfy
 
 using BasicDatatypes: AbstractTree, Interval, PointList
 using QuadTree: Quadtree
@@ -18,12 +18,6 @@ function solveSatisfy(tree::AbstractTree, constraint::Constraint)::Tuple{PointLi
     return tree.search_function(tree, Query(constraint.x_interval, constraint.y_interval)), time() - start_time
 
 end
-
-
-function concurrentSolve(tree::AbstractTree, constraints::Constraint...)::Array{Tuple{PointList, Float64}, 1}
-
-end
-
 
 
 end #module
