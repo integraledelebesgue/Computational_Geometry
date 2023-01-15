@@ -8,6 +8,7 @@ using QuadTree: Quadtree
 using KD_Tree: KDTree
 using Queries: Constraint, constraintToString
 using QueryProcessing: solveSatisfy
+using TreeVisualization: visualize!
 using DelimitedFiles: writedlm
 
 export 
@@ -16,6 +17,7 @@ export
     readPointsFromFile, savePlotToFile!, saveResultToFile!,
     Point, PointList, Interval,
     Quadtree, KDTree,
-    Constraint, solveSatisfy
+    Constraint, solveSatisfy,
+    visualize!
 
 end #module

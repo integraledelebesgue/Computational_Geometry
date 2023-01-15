@@ -13,19 +13,20 @@ struct KDTree <: AbstractTree
     construction_time::Float64
 
     search_function::Function
+    traversal_function::Function
 
-    KDTree(points::PointList, search_function::Function = recursiveDFS) = new(constructKDTree(points, search_function)...)
+    KDTree(points::PointList, search_function::Function = recursiveDFS, traversal_function = getChildren) = new(constructKDTree(points, search_function, traversal_function)...)
 
 end
 
 
-function constructKDTree(points::PointList, search_function::Function)::Tuple{KDNode, Int, Float64, Function}
+function constructKDTree(points::PointList, search_function::Function, traversal_function)::Tuple{KDNode, Int, Float64, Function, Function}
 
     start_time::Float64 = time()
     _root::KDNode = KDNode(points)
     end_time::Float64 = time()
 
-    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function)
+    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function, traversal_function)
 
 end
 

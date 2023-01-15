@@ -12,18 +12,19 @@ struct Quadtree <: AbstractTree
     construction_time::Float64
 
     search_function::Function
+    traversal_function::Function
 
-    Quadtree(points::PointList, search_function::Function = recursiveDFS) = new(constructQuadTree(points, search_function)...)
+    Quadtree(points::PointList, search_function::Function = recursiveDFS, traversal_function = getChildren) = new(constructQuadTree(points, search_function, traversal_function)...)
 end
 
 
-function constructQuadTree(points::PointList, search_function::Function)::Tuple{Quadnode, Int, Float64, Function}
+function constructQuadTree(points::PointList, search_function::Function, traversal_function::Function)::Tuple{Quadnode, Int, Float64, Function, Function}
 
     start_time::Float64 = time()
     _root::Quadnode = Quadnode(points)
     end_time::Float64 = time()
 
-    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function)
+    return (_root, getDepth(_root), round(end_time-start_time, digits=5), search_function, traversal_function)
 
 end
 

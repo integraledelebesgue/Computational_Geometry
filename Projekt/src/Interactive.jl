@@ -1,7 +1,7 @@
 module Interactive
-export plotResults!, plotPointList!, commentResult!
+export plotResults!, plotPointList!, commentResult!, plotSquare!
 
-using BasicDatatypes: Point, PointList, Maybe
+using BasicDatatypes: Point, PointList, Maybe, Square
 using Queries: Constraint, constraintToString
 using Plots: plot, plot!
 using PlotPreprocess: plotPreprocess
@@ -24,6 +24,19 @@ end
 function plotPointList!(points::PointList, constraint::Maybe{Constraint} = nothing)::Nothing
 
     plot!(plotPreprocess(points)..., seriestype = :scatter, label = constraint !== nothing ? constraintToString(constraint) : "Point set") |> display
+    return nothing
+
+end
+
+
+function plotSquare!(square::Square)::Nothing
+
+    plot!(
+        plotPreprocess([square...], edge=true),
+        legend = false,
+        seriescolor = :green
+    ) |> display
+
     return nothing
 
 end

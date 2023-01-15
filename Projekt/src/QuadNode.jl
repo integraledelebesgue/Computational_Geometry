@@ -1,11 +1,11 @@
 module QuadNode
 export Quadnode, isLeaf, dfs, getChildren
 
-using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion 
+using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion, AbstractNode
 using Queries: Query, fitQueryToSquare
 
 
-struct Quadnode
+struct Quadnode <: AbstractNode
 
     points::PointList
 

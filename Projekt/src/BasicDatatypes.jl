@@ -1,16 +1,18 @@
 module BasicDatatypes
-export Maybe, Point, PointList, Interval, intersectIntervals, indefiniteInclusion, AbstractTree
+export Maybe, Point, PointList, Interval, intersectIntervals, indefiniteInclusion, AbstractTree, AbstractNode, Square
 
 # Generic
 Maybe{T} = Union{T, Nothing}
 
 # Abstract
 abstract type AbstractTree end
+abstract type AbstractNode end
 
 # Specialised
 Point = Array{Float64, 1}
 PointList = Array{Point, 1}
 Interval = Tuple{Float64, Float64}
+Square = Tuple{Point, Point, Point, Point}
 KDTree = Nothing
 KDNode = Nothing
 

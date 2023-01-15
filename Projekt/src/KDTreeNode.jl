@@ -2,18 +2,18 @@ module KDTreeNode
 export KDNode, isLeaf, dfs, getChildren
 
 using Statistics: median
-using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion
+using BasicDatatypes: Maybe, Point, PointList, Interval, indefiniteInclusion, AbstractNode
 using Queries: Query, fitQueryToSquare
 
 
-struct KDNode
+struct KDNode <: AbstractNode
 
     points::PointList
 
     centre::Float64
 
-    x_range::Interval
-    y_range::Interval
+    x_interval::Interval
+    y_interval::Interval
 
     left::Maybe{KDNode}
     right::Maybe{KDNode}
@@ -133,12 +133,12 @@ function dfs(node::Maybe{KDNode}, query::Maybe{Query})::PointList
     end
 
     # base recursion case: all poins satisfy constraint
-    if indefiniteInclusion(node.x_range, query.x_interval) && indefiniteInclusion(node.y_range, query.y_interval)
+    if indefiniteInclusion(node.x_interval, query.x_interval) && indefiniteInclusion(node.y_interval, query.y_interval)
         return node.points
     end
 
     # recursive call
-    return reduce(vcat, [dfs(child, fitQueryToSquare(query, child.x_range, child.y_range)) for child in getChildren(node)])
+    return reduce(vcat, [dfs(child, fitQueryToSquare(query, child.x_interval, child.y_interval)) for child in getChildren(node)])
 
 end
 

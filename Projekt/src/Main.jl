@@ -7,7 +7,7 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
 
         # Generate random dataset:
     #points = generateUniformPoints(n, (x_min, x_max), (y_min, y_max))  # Points unoformly distributed on a rectangle area
-    points = generateClusterPoints(n, ([0.0, 0.0], 3.0), ([5.0, -5.0], 0.5), ([0.0, -6.0], 0.25))  # Sum of normally distributed points clusters
+    points = generateClusterPoints(n, ([0.0, 0.0], 5.0))  # Sum of normally distributed points clusters
 
         # Mix generators:
     #points = [
@@ -32,9 +32,6 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
     result_2, execution_time_2 = solveSatisfy(tree, constraint_2)
     result_3, execution_time_3 = solveSatisfy(tree, constraint_3)
 
-        # Process asynchronously:
-    #results = solveSatisfyConcurrent(tree, constraint_1, constraint_2)
-
         # Plot results:
     plotResults!(points, (result_1, constraint_1), (result_2, constraint_2), (result_3, constraint_3))
 
@@ -42,6 +39,9 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
     commentResult!(n, constraint_1, tree.construction_time, length(result_1), execution_time_1)
     commentResult!(n, constraint_2, tree.construction_time, length(result_2), execution_time_2)
     commentResult!(n, constraint_3, tree.construction_time, length(result_3), execution_time_3)
+
+        # Visualize division:
+    visualize!(tree)
 
         # Save results to file:
     #saveResultToFile!("lista_punktow", result_1, constraint_1)  # Add constraint annotation on top
