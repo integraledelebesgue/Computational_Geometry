@@ -3,17 +3,19 @@ push!(LOAD_PATH, @__DIR__)
 using GeometricSearch
 
 
-function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Float64)
+function main()
+
+    n = 100
 
         # Generate random dataset:
-    #points = generateUniformPoints(n, (x_min, x_max), (y_min, y_max))  # Points unoformly distributed on a rectangle area
-    points = generateClusterPoints(n, ([0.0, 0.0], 5.0))  # Sum of normally distributed points clusters
+    #points = generateUniformPoints(n, (0.0, 5.0), (0.0, 5.0))  # Points unoformly distributed on a rectangle area
+    #points = generateClusterPoints(n, ([0.0, 0.0], 5.0), ([5.0, 5.0], 1.0), ([-1.0, -2.0], 0.5))  # Sum of normally distributed points clusters
 
         # Mix generators:
-    #points = [
-    #    generateUniformPoints(10n, (x_min, x_max), (y_min, y_max));
-    #    generateClusterPoints(5n, ([0.0, 0.0], 1.0), ([-1.0, -3.0], 0.5))
-    #]
+    points = [
+        generateUniformPoints(10n, (0.0, 5.0), (0.0, 7.0));
+        generateClusterPoints(5n, ([0.0, 0.0], 1.0), ([-1.0, -3.0], 0.5))
+    ]
 
         # Read dataset from text file:
     #points = readPointsFromFile(filename)
@@ -41,7 +43,7 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
     commentResult!(n, constraint_3, tree.construction_time, length(result_3), execution_time_3)
 
         # Visualize division:
-    visualize!(tree)
+    #visualize!(tree)
 
         # Save results to file:
     #saveResultToFile!("lista_punktow", result_1, constraint_1)  # Add constraint annotation on top
@@ -53,4 +55,4 @@ function main(n::Int, x_min::Float64, x_max::Float64, y_min::Float64, y_max::Flo
 end
 
 
-main(100, -5.0, 5.0, -5.0, 5.0)
+main()

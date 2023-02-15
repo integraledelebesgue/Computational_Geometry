@@ -2,5 +2,6 @@
     "files.associations": {
         "array": "cpp",
         "ostream": "cpp"
-    }
+    },
+    "julia.environmentPath": "/home/jsmolka/.julia/environments/v1.8"
 }
