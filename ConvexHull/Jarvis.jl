@@ -1,5 +1,4 @@
 module Jarvis
-using Base: ident_cmp, identify_package, list_append!!
 export convex_hull_jarvis
 
 using BasicDatatypes: Point, PointList, orient
@@ -21,7 +20,6 @@ function convex_hull_jarvis(points::PointList; accuracy::Float64)::PointList
     next_index::Integer = 0
 
     while true
-
 
         next_point = hull[end-1]
 
